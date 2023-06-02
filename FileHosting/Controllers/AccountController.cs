@@ -9,6 +9,10 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Data;
 using FileHosting.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
+using Microsoft.Extensions.Configuration.UserSecrets;
+using Microsoft.AspNetCore.Http;
 
 namespace FileHosting.Controllers
 {
@@ -16,12 +20,61 @@ namespace FileHosting.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private DBContext _context;
+        
+        IWebHostEnvironment _appEnvironment;
 
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager)
+        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, IWebHostEnvironment appEnvironment, DBContext dBContext)
         {
+            _context= dBContext;
             _userManager = userManager;
             _signInManager = signInManager;
+            _appEnvironment = appEnvironment;
         }
+
+        public IActionResult Profile()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> AddFile(FileModel formFile)
+        {
+
+            var user = HttpContext.User.Identity;
+            Models.File file=new Models.File();
+            string path = Path.Combine(_appEnvironment.WebRootPath, "Files", user.Name);
+
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
+            file.Title = formFile.Title;
+            file.TextData = formFile.TextData;
+            if (formFile.InputFile is not null)
+                file.FileName = formFile.InputFile.FileName;
+            else
+                file.FileName = null;
+            file.IsDelete = formFile.IsDeleted;
+
+            if(file.FileName!=null)
+                file.Path = Path.Combine(path, file.FileName);
+            var CurrUser = _userManager.FindByNameAsync(user.Name);
+            //CurrUser.Files.Add(file);
+            _context.Files.Add(file);
+
+            if (formFile.InputFile != null)
+            {
+                using (var stream = new FileStream(Path.Combine(path, file.FileName), FileMode.Create))
+                {
+                    await formFile.InputFile.CopyToAsync(stream);
+                }
+            }
+
+            _context.SaveChangesAsync();
+            return RedirectToAction("Profile", "Account");
+        }
+
         [HttpGet]
         public IActionResult Register()
         {
@@ -39,7 +92,7 @@ namespace FileHosting.Controllers
                 {
                     // установка куки
                     await _signInManager.SignInAsync(user, false);
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Profile", "Account");
                 }
                 else
                 {
@@ -75,7 +128,7 @@ namespace FileHosting.Controllers
                     }
                     else
                     {
-                        return RedirectToAction("Index", "Home");
+                        return RedirectToAction("Profile", "Account");
                     }
                 }
                 else

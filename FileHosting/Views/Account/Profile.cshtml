@@ -1,0 +1,29 @@
+﻿@model FileHosting.Models.FileModel
+
+<p>@User.Identity.Name</p>
+<form method="post" asp-controller="Account" asp-action="Logout">
+    <input type="submit" value="Выход" />
+</form>
+
+<form method="post" enctype="multipart/form-data" asp-controller="Account" asp-action="AddFile">
+    <div asp-validation-summary="ModelOnly"></div>
+    <div>
+        <label asp-for="Title"></label><br/>
+        <input asp-for="Title"/>
+    </div>
+    <div>
+        <label asp-for="TextData"></label><br />
+        <input asp-for="TextData" />
+    </div>
+    <div>
+        <label asp-for="InputFile"></label><br />
+        <input asp-for="InputFile" />
+    </div>
+    <div>
+        <label asp-for="IsDeleted"></label><br />
+        <input asp-for="IsDeleted" />
+    </div>
+    <div>
+        <input type="submit" value="Upload" />
+    </div>
+</form>

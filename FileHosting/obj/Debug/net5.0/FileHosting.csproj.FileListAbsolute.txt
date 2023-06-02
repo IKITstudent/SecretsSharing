@@ -188,3 +188,4 @@ C:\Users\Kursa\source\repos\SecretsSharing\FileHosting\bin\Debug\net5.0\Microsof
 C:\Users\Kursa\source\repos\SecretsSharing\FileHosting\bin\Debug\net5.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
 C:\Users\Kursa\source\repos\SecretsSharing\FileHosting\bin\Debug\net5.0\Microsoft.Extensions.Identity.Core.dll
 C:\Users\Kursa\source\repos\SecretsSharing\FileHosting\bin\Debug\net5.0\Microsoft.Extensions.Identity.Stores.dll
+C:\Users\Kursa\source\repos\SecretsSharing\FileHosting\obj\Debug\net5.0\Razor\Views\Account\Profile.cshtml.g.cs

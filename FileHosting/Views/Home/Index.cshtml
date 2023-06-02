@@ -4,8 +4,7 @@
 
 @if (User.Identity.IsAuthenticated)
 {
-    <p>@User.Identity.Name</p>
-
+    <a asp-controller="Account" asp-action="Profile">Profile</a>
     <form method="post" asp-controller="Account" asp-action="Logout">
         <input type="submit" value="Выход" />
     </form>

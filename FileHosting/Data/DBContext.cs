@@ -6,7 +6,7 @@ namespace FileHosting.Data
 {
     public class DBContext: IdentityDbContext<User>
     {
-        public DbSet<Text> Texts { get; set; }
+        public DbSet<File> Files { get; set; }
         //public DbSet<User> Users { get; set; }
         public DBContext(DbContextOptions<DBContext> options):base(options)
         {
