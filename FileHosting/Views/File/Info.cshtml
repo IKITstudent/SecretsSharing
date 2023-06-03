@@ -1,3 +1,11 @@
 ﻿@model File
 
+<p>Title: @Model.Title</p>
+<p>Text: @Model.TextData</p>
+<p>File name: @Model.FileName</p>
 <p>File link:<a href="@Model.Path">@Model.Path</a></p>
+
+@if(Model.FileName is not null)
+	{
+		<p>@Html.ActionLink("Download", "DownloadFile", new { id = Model.Id })</p>
+	}

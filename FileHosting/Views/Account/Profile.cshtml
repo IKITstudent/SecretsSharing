@@ -28,13 +28,11 @@
     </div>
 </form>
 
-<form method="get" asp-controller="Account" asp-action="Index">
-<table>
+<form method="get" asp-controller="Account" asp-action="Profile">
+<table border="1">
     <tr>
         <th>Title</th>
-        <th>TextData</th>
         <th>FileName</th>
-        <th>Path</th>
         <th>IsDeleted</th>
     </tr>
     
@@ -43,13 +41,14 @@
                 foreach (var el in ViewBag.Files)
             {
                 <tr>
-                    <td>@el.Item1</td>
-                    <td>@el.Item2</td>
-                    <td>@el.Item3</td>
-                    <td>@el.Item4</td>
-                    <td>@el.Item5</td>
+                    <td>@el.Title</td>
+                    <td>@el.FileName</td>
+                    <td>@el.IsDelete</td>
                     <td>
-                    <button asp-controller="File" asp-action="Info" asp-route-Path="@el.Item4" style="width:auto;height:auto">Details</button>
+                        <button asp-controller="File" asp-action="Info" asp-route-Path="@el.Path">Details</button>
+                    </td>
+                    <td>
+                        <button asp-controller="Account" asp-action="DeleteFile" asp-route-Path="@el.Path">=/</button>
                     </td>
                 </tr>
                 
