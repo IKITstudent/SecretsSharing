@@ -7,7 +7,10 @@ namespace FileHosting.Models
 {
     public class User : IdentityUser
     {
-        public List<File> Files { get; set; }
+        public List<File> Files { get; set; } 
+        public User() {
+            Files = new List<File>();
+        }
     }
 
 

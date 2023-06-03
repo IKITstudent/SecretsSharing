@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FileHosting.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20230602171031_Create1")]
-    partial class Create1
+    [Migration("20230603050808_Create")]
+    partial class Create
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -28,6 +28,9 @@ namespace FileHosting.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("AuthorId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("FileName")
                         .HasColumnType("nvarchar(max)");
 
@@ -43,12 +46,9 @@ namespace FileHosting.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("AuthorId");
 
                     b.ToTable("Files");
                 });
@@ -251,9 +251,11 @@ namespace FileHosting.Migrations
 
             modelBuilder.Entity("FileHosting.Models.File", b =>
                 {
-                    b.HasOne("FileHosting.Models.User", null)
+                    b.HasOne("FileHosting.Models.User", "Author")
                         .WithMany("Files")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("AuthorId");
+
+                    b.Navigation("Author");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

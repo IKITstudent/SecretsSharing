@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.AspNetCore.Http;
+using System.Linq;
+using System;
 
 namespace FileHosting.Controllers
 {
@@ -34,14 +36,28 @@ namespace FileHosting.Controllers
 
         public IActionResult Profile()
         {
+            var user = HttpContext.User.Identity;
+            User CurrentUser = _context.Users.Where(u => u.UserName == user.Name).FirstOrDefault();
+            List<Models.File> UserFiles = _context.Files.Where(u => u.Author.Id == CurrentUser.Id).ToList();
+            List<(string, string, string, string)> outUserFiles = new List<(string, string, string, string)>();
+            
+            foreach(var file in UserFiles)
+            {
+                outUserFiles.Add((file.Title, file.TextData, file.FileName, file.Path));
+            }
+            
+            
+            ViewBag.Files = outUserFiles;
             return View();
         }
+
         [HttpPost]
         public async Task<IActionResult> AddFile(FileModel formFile)
         {
 
             var user = HttpContext.User.Identity;
             Models.File file=new Models.File();
+
             string path = Path.Combine(_appEnvironment.WebRootPath, "Files", user.Name);
 
             if (!Directory.Exists(path))
@@ -51,6 +67,7 @@ namespace FileHosting.Controllers
 
             file.Title = formFile.Title;
             file.TextData = formFile.TextData;
+
             if (formFile.InputFile is not null)
                 file.FileName = formFile.InputFile.FileName;
             else
@@ -59,9 +76,11 @@ namespace FileHosting.Controllers
 
             if(file.FileName!=null)
                 file.Path = Path.Combine(path, file.FileName);
-            var CurrUser = _userManager.FindByNameAsync(user.Name);
-            //CurrUser.Files.Add(file);
+
+            User CurrUser=_context.Users.Where(u=>u.UserName==user.Name).FirstOrDefault();
+            CurrUser.Files.Add(file);
             _context.Files.Add(file);
+            _context.SaveChangesAsync();
 
             if (formFile.InputFile != null)
             {
@@ -71,7 +90,7 @@ namespace FileHosting.Controllers
                 }
             }
 
-            _context.SaveChangesAsync();
+            
             return RedirectToAction("Profile", "Account");
         }
 

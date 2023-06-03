@@ -27,3 +27,28 @@
         <input type="submit" value="Upload" />
     </div>
 </form>
+
+<form method="get" asp-controller="Account" asp-action="Index">
+<table>
+    <tr>
+        <th>Title</th>
+        <th>TextData</th>
+        <th>FileName</th>
+        <th>Path</th>
+    </tr>
+    
+        @if(ViewBag.Files!=null)
+            {
+                foreach (var el in ViewBag.Files)
+            {
+                <tr>
+                        <td>@el.Item1</td>
+                    <td>@el.Item2</td>
+                    <td>@el.Item3</td>
+                    <td>@el.Item4</td>
+                </tr>
+                }
+            }
+    
+</table>
+</form>
