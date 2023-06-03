@@ -15,6 +15,9 @@ using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
 using System;
+using System.Security.Cryptography;
+using System.Text;
+
 
 namespace FileHosting.Controllers
 {
@@ -33,17 +36,24 @@ namespace FileHosting.Controllers
             _signInManager = signInManager;
             _appEnvironment = appEnvironment;
         }
+        
+        //public IActionResult File(int id)
+        //{
 
+        //    Models.File file=_context.Files.FirstOrDefault(f=> f.Id == id);
+        //    //return View(file);
+        //    return RedirectToAction("Info", "File", id);
+        //}
         public IActionResult Profile()
         {
             var user = HttpContext.User.Identity;
             User CurrentUser = _context.Users.Where(u => u.UserName == user.Name).FirstOrDefault();
             List<Models.File> UserFiles = _context.Files.Where(u => u.Author.Id == CurrentUser.Id).ToList();
-            List<(string, string, string, string)> outUserFiles = new List<(string, string, string, string)>();
+            List<(string, string, string, string,bool)> outUserFiles = new List<(string, string, string, string,bool)>();
             
             foreach(var file in UserFiles)
             {
-                outUserFiles.Add((file.Title, file.TextData, file.FileName, file.Path));
+                outUserFiles.Add((file.Title, file.TextData, file.FileName, file.Path,file.IsDelete));
             }
             
             
@@ -51,6 +61,7 @@ namespace FileHosting.Controllers
             return View();
         }
 
+        #region Auth
         [HttpPost]
         public async Task<IActionResult> AddFile(FileModel formFile)
         {
@@ -74,8 +85,21 @@ namespace FileHosting.Controllers
                 file.FileName = null;
             file.IsDelete = formFile.IsDeleted;
 
-            if(file.FileName!=null)
-                file.Path = Path.Combine(path, file.FileName);
+            StringBuilder stringBuilder = new StringBuilder();
+            using(MD5  md5 =MD5.Create())
+            {
+                byte[] hashValue = null;
+                if (formFile.InputFile is not null)
+                { hashValue = md5.ComputeHash(Encoding.UTF8.GetBytes(formFile.InputFile.FileName)); }
+                else
+                { hashValue = md5.ComputeHash(Encoding.UTF8.GetBytes(formFile.Title)); }
+
+                foreach (byte b in hashValue)
+                {
+                    stringBuilder.Append($"{b:X2}");
+                }
+            }
+            file.Path = stringBuilder.ToString();    
 
             User CurrUser=_context.Users.Where(u=>u.UserName==user.Name).FirstOrDefault();
             CurrUser.Files.Add(file);
@@ -166,5 +190,6 @@ namespace FileHosting.Controllers
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
+        #endregion
     }
 }

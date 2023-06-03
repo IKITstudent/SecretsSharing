@@ -35,6 +35,7 @@
         <th>TextData</th>
         <th>FileName</th>
         <th>Path</th>
+        <th>IsDeleted</th>
     </tr>
     
         @if(ViewBag.Files!=null)
@@ -42,11 +43,16 @@
                 foreach (var el in ViewBag.Files)
             {
                 <tr>
-                        <td>@el.Item1</td>
+                    <td>@el.Item1</td>
                     <td>@el.Item2</td>
                     <td>@el.Item3</td>
                     <td>@el.Item4</td>
+                    <td>@el.Item5</td>
+                    <td>
+                    <button asp-controller="File" asp-action="Info" asp-route-Path="@el.Item4" style="width:auto;height:auto">Details</button>
+                    </td>
                 </tr>
+                
                 }
             }
     
