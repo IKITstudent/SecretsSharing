@@ -47,6 +47,9 @@ namespace FileHosting.Migrations
                     b.Property<string>("UserName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Views")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");

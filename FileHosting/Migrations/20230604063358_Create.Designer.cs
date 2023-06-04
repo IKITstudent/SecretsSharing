@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FileHosting.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20230604062141_Create")]
+    [Migration("20230604063358_Create")]
     partial class Create
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -48,6 +48,9 @@ namespace FileHosting.Migrations
 
                     b.Property<string>("UserName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Views")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

@@ -17,6 +17,7 @@ namespace FileHosting.Models
         public bool IsDelete { get; set; }
         public string UserName { get; set; }
         public User Author { get; set; }
+        public int Views { get; set; }
 
     }
 }

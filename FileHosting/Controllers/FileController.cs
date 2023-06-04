@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
+using System.Collections.Generic;
 
 namespace FileHosting.Controllers
 {
@@ -21,8 +22,23 @@ namespace FileHosting.Controllers
         {
             _context = dBContext;
             _environment = environment;
-        }
+			CheckForViews(_context);
+		}
 
+		private void CheckForViews(DBContext dBContext)
+		{
+			List<Models.File> files = dBContext.Files.ToList<Models.File>();
+			List<string> pathes = new List<string>();
+            foreach (var file in files)
+            {
+                if(file.IsDelete && file.Views>0)
+					pathes.Add(file.Path);
+            }
+			foreach (var path in pathes)
+			{
+				DeleteFile(path);
+			}
+		}
 		/// <summary>
 		/// Display information about file
 		/// </summary>
@@ -30,12 +46,23 @@ namespace FileHosting.Controllers
 		/// <returns></returns>
         public IActionResult Info(string path)
         {
-            var url = Request.GetDisplayUrl();
+			//CheckForViews(_context);
+
+			var url = Request.GetDisplayUrl();
 
 			//Getting file
-            _currentFile = _context.Files.Where(f => f.Path == path).FirstOrDefault();
+			_currentFile = _context.Files.Where(f => f.Path == path).FirstOrDefault();
+
+			if (_currentFile == null)
+				return RedirectToAction("Error", "Home");
+
+			_currentFile.Views++;
+			_context.SaveChanges();
 			//Full file url
-            _currentFile.Path = url;
+			_currentFile.Path = url;
+
+			
+
 
             return View(_currentFile);
         }
@@ -131,6 +158,7 @@ namespace FileHosting.Controllers
 					file.FileName = null;
 
 				file.IsDelete = formFile.IsDeleted;
+				file.Views = 0;
 
 				//Create a path by MD5
 				StringBuilder stringBuilder = new StringBuilder();

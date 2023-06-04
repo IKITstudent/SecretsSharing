@@ -164,7 +164,8 @@ namespace FileHosting.Migrations
                     Path = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsDelete = table.Column<bool>(type: "bit", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AuthorId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    AuthorId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Views = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

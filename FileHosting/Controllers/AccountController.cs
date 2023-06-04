@@ -19,6 +19,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace FileHosting.Controllers
 {
@@ -36,8 +37,52 @@ namespace FileHosting.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
             _appEnvironment = appEnvironment;
-        }
-        
+            CheckFilesForDelete(_context);
+		}
+
+		/// <summary>
+		/// This crutch method deleting files is thiers view count >=1.
+		/// It is copied from FileController.
+		/// </summary>
+		/// <param name="dbContext"></param>
+		/// <returns></returns>
+		private async Task<IActionResult> CheckFilesForDelete(DBContext dbContext)
+        {
+            List<Models.File> files = dbContext.Files.ToList<Models.File>();
+            List<string> pathes = new List<string>();
+            foreach (var file in files)
+            {
+                if (file.IsDelete && file.Views > 0)
+                    pathes.Add(file.Path);
+            }
+            foreach (var path in pathes)
+            {
+				var RemFile = _context.Files.FirstOrDefault(f => f.Path == path);
+
+				//Get file author
+				User CurrentUser = _context.Users.FirstOrDefault(u => u.Email == RemFile.UserName);
+
+				//Checking file for content in folder
+				if (RemFile.FileName != null)
+				{
+					//Getting folder path to file
+					string FilePath = Path.Combine(_appEnvironment.WebRootPath, "Files", CurrentUser.UserName, RemFile.FileName);
+
+					//Deleting file from folder
+					FileInfo fileInfo = new FileInfo(FilePath);
+					fileInfo.Delete();
+				}
+
+				//Deleting file from databases
+				CurrentUser.Files.Remove(RemFile);
+				_context.Files.Remove(RemFile);
+				_context.SaveChanges();
+
+				
+			}
+			return RedirectToAction("Profile", "Account");
+		}
+
         /// <summary>
         /// Profile page display
         /// </summary>
