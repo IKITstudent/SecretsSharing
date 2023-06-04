@@ -18,6 +18,7 @@ using System;
 using System.Security.Cryptography;
 using System.Text;
 using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace FileHosting.Controllers
 {
@@ -37,106 +38,30 @@ namespace FileHosting.Controllers
             _appEnvironment = appEnvironment;
         }
         
-        //public IActionResult File(int id)
-        //{
-
-        //    Models.File file=_context.Files.FirstOrDefault(f=> f.Id == id);
-        //    //return View(file);
-        //    return RedirectToAction("Info", "File", id);
-        //}
+        /// <summary>
+        /// Profile page display
+        /// </summary>
+        /// <returns></returns>
         public IActionResult Profile()
         {
+            //Get current user
             var user = HttpContext.User.Identity;
             User CurrentUser = _context.Users.Where(u => u.UserName == user.Name).FirstOrDefault();
+            
+
+            //Get user files
             List<Models.File> UserFiles = _context.Files.Where(u => u.Author.Id == CurrentUser.Id).ToList();
 
-            //ViewBag.Files = outUserFiles;
+            //Send user files to view
             ViewBag.Files = UserFiles;
+
             return View();
         }
 
-        
-        [HttpPost]
-        public async Task<IActionResult> AddFile(FileModel formFile)
-        {
-            if (formFile.Title==null && formFile.TextData==null && formFile.InputFile==null)
-            {
-                return RedirectToAction("Profile", "Account");
-            }
-            else
-            {
-                var user = HttpContext.User.Identity;
-                User CurrUser = _context.Users.Where(u => u.UserName == user.Name).FirstOrDefault();
-                Models.File file = new Models.File();
-
-                string path = Path.Combine(_appEnvironment.WebRootPath, "Files", user.Name);
-
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-
-                file.UserName = user.Name;
-                file.Author = CurrUser;
-                file.Title = formFile.Title;
-                file.TextData = formFile.TextData;
-
-                if (formFile.InputFile is not null)
-                    file.FileName = formFile.InputFile.FileName;
-                else
-                    file.FileName = null;
-                file.IsDelete = formFile.IsDeleted;
-
-                StringBuilder stringBuilder = new StringBuilder();
-                using (MD5 md5 = MD5.Create())
-                {
-                    byte[] hashValue = null;
-                    if (formFile.InputFile is not null)
-                    { hashValue = md5.ComputeHash(Encoding.UTF8.GetBytes(formFile.InputFile.FileName)); }
-                    else
-                    { hashValue = md5.ComputeHash(Encoding.UTF8.GetBytes(formFile.Title)); }
-
-                    foreach (byte b in hashValue)
-                    {
-                        stringBuilder.Append($"{b:X2}");
-                    }
-                }
-                file.Path = stringBuilder.ToString();
-
-
-                CurrUser.Files.Add(file);
-                _context.Files.Add(file);
-                _context.SaveChangesAsync();
-
-                if (formFile.InputFile != null)
-                {
-                    using (var stream = new FileStream(Path.Combine(path, file.FileName), FileMode.Create))
-                    {
-                        await formFile.InputFile.CopyToAsync(stream);
-                    }
-                }
-
-                return RedirectToAction("Profile", "Account");
-            }
-        }
-
-
-        public async Task<IActionResult> DeleteFile(string path)
-        {
-            var RemFile = _context.Files.FirstOrDefault(f => f.Path == path);
-            User CurrentUser = _context.Users.FirstOrDefault(u => u.Email == RemFile.UserName);
-            if (RemFile.FileName != null)
-            {
-                string FilePath = Path.Combine(_appEnvironment.WebRootPath,"Files", CurrentUser.UserName, RemFile.FileName);
-                FileInfo fileInfo = new FileInfo(FilePath);
-                fileInfo.Delete();
-            }
-            CurrentUser.Files.Remove(RemFile);
-            _context.Files.Remove(RemFile);
-            _context.SaveChanges();
-            return RedirectToAction("Profile", "Account");
-        }
-		#region Auth
+		/// <summary>
+        /// Registration of new user
+        /// </summary>
+        /// <returns></returns>
 		[HttpGet]
         public IActionResult Register()
         {
@@ -145,15 +70,21 @@ namespace FileHosting.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(RegisterModel model)
         {
+            //Checking Registraton model for validation
             if (ModelState.IsValid)
             {
+                //Create new user
                 User user = new User { Email = model.Email, UserName = model.Email};
-                // добавляем пользователя
+                
+                //Add new user to database
                 var result = await _userManager.CreateAsync(user, model.Password);
+
+                //Checking adding result
                 if (result.Succeeded)
                 {
-                    // установка куки
-                    await _signInManager.SignInAsync(user, false);
+					//Setting cookies
+					await _signInManager.SignInAsync(user, false);
+
                     return RedirectToAction("Profile", "Account");
                 }
                 else
@@ -167,6 +98,11 @@ namespace FileHosting.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Login user
+        /// </summary>
+        /// <param name="returnUrl"></param>
+        /// <returns></returns>
         [HttpGet]
         public IActionResult Login(string returnUrl = null)
         {
@@ -177,13 +113,16 @@ namespace FileHosting.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginModel model)
         {
-            if (ModelState.IsValid)
+			//Checking Login model for validation
+			if (ModelState.IsValid)
             {
-                var result =
-                    await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
+                //Sign in user
+                var result =await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
+
+                //Cheking singn in result
                 if (result.Succeeded)
                 {
-                    // проверяем, принадлежит ли URL приложению
+                    //Checking Url
                     if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
                     {
                         return Redirect(model.ReturnUrl);
@@ -201,14 +140,17 @@ namespace FileHosting.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Log out user
+        /// </summary>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            // удаляем аутентификационные куки
+            // Deleting athentification coockies
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
-        #endregion
     }
 }

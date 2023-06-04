@@ -5,7 +5,7 @@
     <input type="submit" value="Выход" />
 </form>
 
-<form method="post" enctype="multipart/form-data" asp-controller="Account" asp-action="AddFile">
+<form method="post" enctype="multipart/form-data" asp-controller="File" asp-action="AddFile">
     <div asp-validation-summary="ModelOnly"></div>
     <div>
         <label asp-for="Title"></label><br/>
@@ -33,7 +33,8 @@
     <tr>
         <th>Title</th>
         <th>FileName</th>
-        <th>IsDeleted</th>
+        <th>URL</th>
+        <th>Is deleted</th>
     </tr>
     
         @if(ViewBag.Files!=null)
@@ -43,12 +44,13 @@
                 <tr>
                     <td>@el.Title</td>
                     <td>@el.FileName</td>
+                    <td><a asp-controller="File" asp-action="Info" asp-route-Path="@el.Path">@el.Path</a></td>
                     <td>@el.IsDelete</td>
                     <td>
                         <button asp-controller="File" asp-action="Info" asp-route-Path="@el.Path">Details</button>
                     </td>
                     <td>
-                        <button asp-controller="Account" asp-action="DeleteFile" asp-route-Path="@el.Path">=/</button>
+                        <button asp-controller="File" asp-action="DeleteFile" asp-route-Path="@el.Path">Delete</button>
                     </td>
                 </tr>
                 

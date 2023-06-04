@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FileHosting.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20230603165353_Create")]
+    [Migration("20230604062141_Create")]
     partial class Create
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
