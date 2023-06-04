@@ -29,17 +29,17 @@
 </form>
 
 <form method="get" asp-controller="Account" asp-action="Profile">
-<table border="1">
-    <tr>
-        <th>Title</th>
-        <th>FileName</th>
-        <th>URL</th>
-        <th>Is deleted</th>
-    </tr>
+    <table border="1">
+        <tr>
+            <th width="100px">Title</th>
+            <th width="100px">FileName</th>
+            <th width="100px">URL</th>
+            <th width ="100px">Is deleted</th>
+        </tr>
     
-        @if(ViewBag.Files!=null)
-            {
-                foreach (var el in ViewBag.Files)
+        @if (ViewBag.Files != null)
+        {
+            foreach (var el in ViewBag.Files)
             {
                 <tr>
                     <td>@el.Title</td>
@@ -53,9 +53,8 @@
                         <button asp-controller="File" asp-action="DeleteFile" asp-route-Path="@el.Path">Delete</button>
                     </td>
                 </tr>
-                
-                }
             }
-    
-</table>
+        }
+
+    </table>
 </form>

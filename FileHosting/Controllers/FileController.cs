@@ -22,7 +22,6 @@ namespace FileHosting.Controllers
         {
             _context = dBContext;
             _environment = environment;
-			CheckForViews(_context);
 		}
 
 		private void CheckForViews(DBContext dBContext)
@@ -46,7 +45,7 @@ namespace FileHosting.Controllers
 		/// <returns></returns>
         public IActionResult Info(string path)
         {
-			//CheckForViews(_context);
+			CheckForViews(_context);
 
 			var url = Request.GetDisplayUrl();
 
@@ -58,7 +57,6 @@ namespace FileHosting.Controllers
 
 			_currentFile.Views++;
 			_context.SaveChanges();
-			//Full file url
 			_currentFile.Path = url;
 
 			

@@ -41,20 +41,26 @@ namespace FileHosting.Controllers
 		}
 
 		/// <summary>
-		/// This crutch method deleting files is thiers view count >=1.
-		/// It is copied from FileController.
+		/// This method deleting files if thiers view count >=1.
 		/// </summary>
 		/// <param name="dbContext"></param>
 		/// <returns></returns>
 		private async Task<IActionResult> CheckFilesForDelete(DBContext dbContext)
         {
+            //Get files from database
             List<Models.File> files = dbContext.Files.ToList<Models.File>();
+            
+            //Create list of pathes for deleting files
             List<string> pathes = new List<string>();
+
+            //taking pathes of deleting files
             foreach (var file in files)
             {
                 if (file.IsDelete && file.Views > 0)
                     pathes.Add(file.Path);
             }
+
+            //Deleting files
             foreach (var path in pathes)
             {
 				var RemFile = _context.Files.FirstOrDefault(f => f.Path == path);
