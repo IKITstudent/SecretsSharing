@@ -31,10 +31,10 @@
 <form method="get" asp-controller="Account" asp-action="Profile">
     <table border="1">
         <tr>
-            <th width="100px">Title</th>
-            <th width="100px">FileName</th>
-            <th width="100px">URL</th>
-            <th width ="100px">Is deleted</th>
+            <th>Title</th>
+            <th>FileName</th>
+            <th>URL</th>
+            <th>Is deleted</th>
         </tr>
     
         @if (ViewBag.Files != null)
@@ -42,10 +42,10 @@
             foreach (var el in ViewBag.Files)
             {
                 <tr>
-                    <td>@el.Title</td>
-                    <td>@el.FileName</td>
-                    <td><a asp-controller="File" asp-action="Info" asp-route-Path="@el.Path">@el.Path</a></td>
-                    <td>@el.IsDelete</td>
+                    <td width="100px">@el.Title</td>
+                    <td width="100px">@el.FileName</td>
+                    <td width="100px"><a asp-controller="File" asp-action="Info" asp-route-Path="@el.Path">@el.Path</a></td>
+                    <td width="100px">@el.IsDelete</td>
                     <td>
                         <button asp-controller="File" asp-action="Info" asp-route-Path="@el.Path">Details</button>
                     </td>
@@ -53,8 +53,9 @@
                         <button asp-controller="File" asp-action="DeleteFile" asp-route-Path="@el.Path">Delete</button>
                     </td>
                 </tr>
+
             }
-        }
+        }      
 
     </table>
 </form>

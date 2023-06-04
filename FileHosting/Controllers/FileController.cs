@@ -22,6 +22,7 @@ namespace FileHosting.Controllers
         {
             _context = dBContext;
             _environment = environment;
+			
 		}
 
 		private void CheckForViews(DBContext dBContext)
@@ -57,6 +58,7 @@ namespace FileHosting.Controllers
 
 			_currentFile.Views++;
 			_context.SaveChanges();
+			//Full file url
 			_currentFile.Path = url;
 
 			
@@ -86,7 +88,6 @@ namespace FileHosting.Controllers
 		/// </summary>
 		/// <param name="path"></param>
 		/// <returns></returns>
-		[HttpPost]
 		public async Task<IActionResult> DeleteFile(string path)
 		{
 			//Get file from database

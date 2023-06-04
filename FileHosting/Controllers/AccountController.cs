@@ -47,13 +47,13 @@ namespace FileHosting.Controllers
 		/// <returns></returns>
 		private async Task<IActionResult> CheckFilesForDelete(DBContext dbContext)
         {
-            //Get files from database
+            //Getting files
             List<Models.File> files = dbContext.Files.ToList<Models.File>();
-            
-            //Create list of pathes for deleting files
+
+            //List pathes for deleting by pathes
             List<string> pathes = new List<string>();
 
-            //taking pathes of deleting files
+            //Search files with views count>=1
             foreach (var file in files)
             {
                 if (file.IsDelete && file.Views > 0)
