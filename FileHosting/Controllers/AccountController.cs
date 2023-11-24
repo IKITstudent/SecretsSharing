@@ -23,29 +23,29 @@ using Microsoft.Extensions.Hosting;
 
 namespace FileHosting.Controllers
 {
-    public class AccountController:Controller
+    public class AccountController : Controller
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private DBContext _context;
-        
+
         IWebHostEnvironment _appEnvironment;
 
         public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, IWebHostEnvironment appEnvironment, DBContext dBContext)
         {
-            _context= dBContext;
+            _context = dBContext;
             _userManager = userManager;
             _signInManager = signInManager;
             _appEnvironment = appEnvironment;
             CheckFilesForDelete(_context);
-		}
+        }
 
-		/// <summary>
-		/// This method deleting files if thiers view count >=1.
-		/// </summary>
-		/// <param name="dbContext"></param>
-		/// <returns></returns>
-		private async Task<IActionResult> CheckFilesForDelete(DBContext dbContext)
+        /// <summary>
+        /// This method deleting files if thiers view count >=1.
+        /// </summary>
+        /// <param name="dbContext"></param>
+        /// <returns></returns>
+        private async Task<IActionResult> CheckFilesForDelete(DBContext dbContext)
         {
             //Getting files
             List<Models.File> files = dbContext.Files.ToList<Models.File>();
@@ -63,31 +63,31 @@ namespace FileHosting.Controllers
             //Deleting files
             foreach (var path in pathes)
             {
-				var RemFile = _context.Files.FirstOrDefault(f => f.Path == path);
+                var RemFile = _context.Files.FirstOrDefault(f => f.Path == path);
 
-				//Get file author
-				User CurrentUser = _context.Users.FirstOrDefault(u => u.Email == RemFile.UserName);
+                //Get file author
+                User CurrentUser = _context.Users.FirstOrDefault(u => u.Email == RemFile.UserName);
 
-				//Checking file for content in folder
-				if (RemFile.FileName != null)
-				{
-					//Getting folder path to file
-					string FilePath = Path.Combine(_appEnvironment.WebRootPath, "Files", CurrentUser.UserName, RemFile.FileName);
+                //Checking file for content in folder
+                if (RemFile.FileName != null)
+                {
+                    //Getting folder path to file
+                    string FilePath = Path.Combine(_appEnvironment.WebRootPath, "Files", CurrentUser.UserName, RemFile.FileName);
 
-					//Deleting file from folder
-					FileInfo fileInfo = new FileInfo(FilePath);
-					fileInfo.Delete();
-				}
+                    //Deleting file from folder
+                    FileInfo fileInfo = new FileInfo(FilePath);
+                    fileInfo.Delete();
+                }
 
-				//Deleting file from databases
-				CurrentUser.Files.Remove(RemFile);
-				_context.Files.Remove(RemFile);
-				_context.SaveChanges();
+                //Deleting file from databases
+                CurrentUser.Files.Remove(RemFile);
+                _context.Files.Remove(RemFile);
+                _context.SaveChanges();
 
-				
-			}
-			return RedirectToAction("Profile", "Account");
-		}
+
+            }
+            return RedirectToAction("Profile", "Account");
+        }
 
         /// <summary>
         /// Profile page display
@@ -98,7 +98,7 @@ namespace FileHosting.Controllers
             //Get current user
             var user = HttpContext.User.Identity;
             User CurrentUser = _context.Users.Where(u => u.UserName == user.Name).FirstOrDefault();
-            
+
 
             //Get user files
             List<Models.File> UserFiles = _context.Files.Where(u => u.Author.Id == CurrentUser.Id).ToList();
@@ -109,11 +109,11 @@ namespace FileHosting.Controllers
             return View();
         }
 
-		/// <summary>
+        /// <summary>
         /// Registration of new user
         /// </summary>
         /// <returns></returns>
-		[HttpGet]
+        [HttpGet]
         public IActionResult Register()
         {
             return View();
@@ -125,16 +125,16 @@ namespace FileHosting.Controllers
             if (ModelState.IsValid)
             {
                 //Create new user
-                User user = new User { Email = model.Email, UserName = model.Email};
-                
+                User user = new User { Email = model.Email, UserName = model.Email };
+
                 //Add new user to database
                 var result = await _userManager.CreateAsync(user, model.Password);
 
                 //Checking adding result
                 if (result.Succeeded)
                 {
-					//Setting cookies
-					await _signInManager.SignInAsync(user, false);
+                    //Setting cookies
+                    await _signInManager.SignInAsync(user, false);
 
                     return RedirectToAction("Profile", "Account");
                 }
@@ -164,11 +164,11 @@ namespace FileHosting.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginModel model)
         {
-			//Checking Login model for validation
-			if (ModelState.IsValid)
+            //Checking Login model for validation
+            if (ModelState.IsValid)
             {
                 //Sign in user
-                var result =await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
+                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
 
                 //Cheking singn in result
                 if (result.Succeeded)
