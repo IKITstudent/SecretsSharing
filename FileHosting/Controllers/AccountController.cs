@@ -2,24 +2,14 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using FileHosting.Models;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Data;
 using FileHosting.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
-using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
-using System;
-using System.Security.Cryptography;
-using System.Text;
-using System.Runtime.CompilerServices;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.Extensions.Hosting;
+
 
 namespace FileHosting.Controllers
 {
@@ -37,6 +27,7 @@ namespace FileHosting.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
             _appEnvironment = appEnvironment;
+            //delete later
             CheckFilesForDelete(_context);
         }
 
@@ -96,15 +87,10 @@ namespace FileHosting.Controllers
         public IActionResult Profile()
         {
             //Get current user
-            var user = HttpContext.User.Identity;
-            User CurrentUser = _context.Users.Where(u => u.UserName == user.Name).FirstOrDefault();
+            User CurrentUser = _context.Users.Where(u => u.UserName == HttpContext.User.Identity.Name).FirstOrDefault();
 
-
-            //Get user files
-            List<Models.File> UserFiles = _context.Files.Where(u => u.Author.Id == CurrentUser.Id).ToList();
-
-            //Send user files to view
-            ViewBag.Files = UserFiles;
+            //Get and send user files to view
+            ViewBag.Files = _context.Files.Where(u => u.Author.Id == CurrentUser.Id).ToList();
 
             return View();
         }
@@ -118,6 +104,7 @@ namespace FileHosting.Controllers
         {
             return View();
         }
+
         [HttpPost]
         public async Task<IActionResult> Register(RegisterModel model)
         {

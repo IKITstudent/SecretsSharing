@@ -1,61 +1,66 @@
 ﻿@model FileHosting.Models.FileModel
+<body>
+	<div>
+		<p>@User.Identity.Name</p>
+		<form method="post" asp-controller="Account" asp-action="Logout">
+			<input type="submit" value="Выход" />
+		</form>
+	</div>
+	<div>
+		<form method="post" enctype="multipart/form-data" asp-controller="File" asp-action="AddFile">
+			<div asp-validation-summary="ModelOnly"></div>
+			<div>
+				<label asp-for="Title"></label><br />
+				<input asp-for="Title" />
+			</div>
+			<div>
+				<label asp-for="TextData"></label><br />
+				<input asp-for="TextData" />
+			</div>
+			<div>
+				<label asp-for="InputFile"></label><br />
+				<input asp-for="InputFile" />
+			</div>
+			<div>
+				<label asp-for="IsDeleted"></label><br />
+				<input asp-for="IsDeleted" />
+			</div>
+			<div>
+				<input type="submit" value="Upload" />
+			</div>
+		</form>
+	</div>
+	<div>
+		<form method="get" asp-controller="Account" asp-action="Profile">
+			<table border="1">
+				<tr>
+					<th>Title</th>
+					<th>FileName</th>
+					<th>URL</th>
+					<th>Is deleted</th>
+				</tr>
 
-<p>@User.Identity.Name</p>
-<form method="post" asp-controller="Account" asp-action="Logout">
-    <input type="submit" value="Выход" />
-</form>
+				@if (ViewBag.Files != null)
+				{
+					foreach (var el in ViewBag.Files)
+					{
+						<tr>
+							<td width="100px">@el.Title</td>
+							<td width="100px">@el.FileName</td>
+							<td width="100px"><a asp-controller="File" asp-action="Info" asp-route-Path="@el.Path">@el.Path</a></td>
+							<td width="100px">@el.IsDelete</td>
+							<td>
+								<button asp-controller="File" asp-action="Info" asp-route-Path="@el.Path">Details</button>
+							</td>
+							<td>
+								<button asp-controller="File" asp-action="DeleteFile" asp-route-Path="@el.Path">Delete</button>
+							</td>
+						</tr>
 
-<form method="post" enctype="multipart/form-data" asp-controller="File" asp-action="AddFile">
-    <div asp-validation-summary="ModelOnly"></div>
-    <div>
-        <label asp-for="Title"></label><br/>
-        <input asp-for="Title"/>
-    </div>
-    <div>
-        <label asp-for="TextData"></label><br />
-        <input asp-for="TextData" />
-    </div>
-    <div>
-        <label asp-for="InputFile"></label><br />
-        <input asp-for="InputFile" />
-    </div>
-    <div>
-        <label asp-for="IsDeleted"></label><br />
-        <input asp-for="IsDeleted" />
-    </div>
-    <div>
-        <input type="submit" value="Upload" />
-    </div>
-</form>
+					}
+				}
 
-<form method="get" asp-controller="Account" asp-action="Profile">
-    <table border="1">
-        <tr>
-            <th>Title</th>
-            <th>FileName</th>
-            <th>URL</th>
-            <th>Is deleted</th>
-        </tr>
-    
-        @if (ViewBag.Files != null)
-        {
-            foreach (var el in ViewBag.Files)
-            {
-                <tr>
-                    <td width="100px">@el.Title</td>
-                    <td width="100px">@el.FileName</td>
-                    <td width="100px"><a asp-controller="File" asp-action="Info" asp-route-Path="@el.Path">@el.Path</a></td>
-                    <td width="100px">@el.IsDelete</td>
-                    <td>
-                        <button asp-controller="File" asp-action="Info" asp-route-Path="@el.Path">Details</button>
-                    </td>
-                    <td>
-                        <button asp-controller="File" asp-action="DeleteFile" asp-route-Path="@el.Path">Delete</button>
-                    </td>
-                </tr>
-
-            }
-        }      
-
-    </table>
-</form>
+			</table>
+		</form>
+	</div>
+</body>

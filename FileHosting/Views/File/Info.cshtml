@@ -7,5 +7,5 @@
 
 @if(Model.FileName is not null)
 	{
-		<p>@Html.ActionLink("Download", "DownloadFile", new { id = Model.Id })</p>
+		<p>@Html.ActionLink("Download", "DownloadFile", new { path = Model.Path })</p>
 	}
