@@ -140,6 +140,7 @@ namespace FileHosting.Models
 		/// </returns>
 		private File GetCurrentFile()
 		{
+			FindFile();
 			return currentFile;
 		}
 

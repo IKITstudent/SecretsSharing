@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using FileHosting.Models;
 using System.Data;
 using FileHosting.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Hosting;
-using System.IO;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
 
@@ -27,57 +25,6 @@ namespace FileHosting.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
             _appEnvironment = appEnvironment;
-            //delete later
-            CheckFilesForDelete(_context);
-        }
-
-        /// <summary>
-        /// This method deleting files if thiers view count >=1.
-        /// </summary>
-        /// <param name="dbContext"></param>
-        /// <returns></returns>
-        private async Task<IActionResult> CheckFilesForDelete(DBContext dbContext)
-        {
-            //Getting files
-            List<Models.File> files = dbContext.Files.ToList<Models.File>();
-
-            //List pathes for deleting by pathes
-            List<string> pathes = new List<string>();
-
-            //Search files with views count>=1
-            foreach (var file in files)
-            {
-                if (file.IsDelete && file.Views > 0)
-                    pathes.Add(file.Path);
-            }
-
-            //Deleting files
-            foreach (var path in pathes)
-            {
-                var RemFile = _context.Files.FirstOrDefault(f => f.Path == path);
-
-                //Get file author
-                User CurrentUser = _context.Users.FirstOrDefault(u => u.Email == RemFile.UserName);
-
-                //Checking file for content in folder
-                if (RemFile.FileName != null)
-                {
-                    //Getting folder path to file
-                    string FilePath = Path.Combine(_appEnvironment.WebRootPath, "Files", CurrentUser.UserName, RemFile.FileName);
-
-                    //Deleting file from folder
-                    FileInfo fileInfo = new FileInfo(FilePath);
-                    fileInfo.Delete();
-                }
-
-                //Deleting file from databases
-                CurrentUser.Files.Remove(RemFile);
-                _context.Files.Remove(RemFile);
-                _context.SaveChanges();
-
-
-            }
-            return RedirectToAction("Profile", "Account");
         }
 
         /// <summary>
@@ -188,6 +135,7 @@ namespace FileHosting.Controllers
         {
             // Deleting athentification coockies
             await _signInManager.SignOutAsync();
+
             return RedirectToAction("Index", "Home");
         }
     }
