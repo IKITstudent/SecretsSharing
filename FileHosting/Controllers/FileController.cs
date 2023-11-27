@@ -10,14 +10,12 @@ namespace FileHosting.Controllers
 	public class FileController : Controller
 	{
 		private IWebHostEnvironment environment;
-		private DBContext context;
 		private FileActions fileActions;
 		private string path;
 
 		public FileController(DBContext dBContext, IWebHostEnvironment environment)
 		{
 			fileActions = new FileActions(dBContext);
-			context = dBContext;
 			this.environment = environment;
 		}
 
@@ -34,7 +32,7 @@ namespace FileHosting.Controllers
 
 			if (fileActions.IsFileExists())
 			{
-				return View(fileActions.GetCurrentFile());
+				return View(fileActions.FileInfo());
 			}
 			else
 			{
