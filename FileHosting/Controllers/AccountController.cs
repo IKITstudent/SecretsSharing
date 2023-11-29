@@ -13,8 +13,10 @@ namespace FileHosting.Controllers
 {
     public class AccountController : Controller
     {
+        private IWebHostEnvironment environment;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private FileActions _fileActions;
         private DBContext _context;
 
         IWebHostEnvironment _appEnvironment;
@@ -25,6 +27,8 @@ namespace FileHosting.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
             _appEnvironment = appEnvironment;
+            _fileActions = new FileActions(_context);
+            _fileActions.CheckForViews(_appEnvironment.WebRootPath);
         }
 
         /// <summary>

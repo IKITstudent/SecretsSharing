@@ -19,23 +19,6 @@ namespace FileHosting.Models
 		public FileActions(DBContext context)
 		{
 			this.context = context;
-			CheckForViewsAsync();
-		}
-
-		/// <summary>
-		/// Check files wich marked IsDelete for views and start method delete for finded files.
-		/// </summary>
-		private void CheckForViewsAsync()
-		{
-			List<Models.File> files = context.Files.ToList<Models.File>();
-
-			foreach (var file in files)
-			{
-				if (file.IsDelete && file.Views > 0)
-				{
-					DeleteFile(file.Path);
-				}
-			}
 		}
 
 		/// <summary>
@@ -145,10 +128,34 @@ namespace FileHosting.Models
 		}
 
 		/// <summary>
-		/// Check file at server.
+		/// Private method for deleteg viewed files wich marked "IsDeleted".
 		/// </summary>
-		/// <returns></returns>
-		public bool IsFileExists()
+		/// <param name="file"></param>
+		/// <param name="WebRootPath"></param>
+        private void DeleteFiles(File file, string WebRootPath)
+        {
+            var CurrentUser = context.Users.FirstOrDefault(u => u.Email == file.UserName);
+
+            if (file.FileName != null)
+            {
+                //Getting folder path to file
+                string filePath = Path.Combine(WebRootPath, "Files", CurrentUser.UserName, file.FileName);
+
+                //Deleting file from folder
+                FileInfo fileInfo = new FileInfo(filePath);
+                fileInfo.Delete();
+            }
+
+            CurrentUser.Files.Remove(file);
+            context.Files.Remove(file);
+            context.SaveChanges();
+        }
+
+        /// <summary>
+        /// Check file at server.
+        /// </summary>
+        /// <returns></returns>
+        public bool IsFileExists()
 		{
 			FindFile();
 
@@ -196,11 +203,27 @@ namespace FileHosting.Models
 			return Path.Combine(WebRootPath, "Files", currentFile.UserName, currentFile.FileName);
 		}
 
-		/// <summary>
-		/// Delete file.
-		/// </summary>
-		/// <param name="WebRootPath"></param>
-		public void DeleteFile(string WebRootPath)
+        /// <summary>
+        /// Check files wich marked IsDelete for views and start method delete for finded files.
+        /// </summary>
+        public void CheckForViews(string WebRootPath)
+        {
+            List<File> files = context.Files.ToList();
+
+            foreach (var file in files)
+            {
+                if (file.IsDelete && file.Views > 0)
+                {
+                    DeleteFiles(file, WebRootPath);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Delete file.
+        /// </summary>
+        /// <param name="WebRootPath"></param>
+        public void DeleteFile(string WebRootPath)
 		{
 			var file = GetCurrentFile();
 
